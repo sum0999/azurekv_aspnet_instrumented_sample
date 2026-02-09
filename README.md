@@ -1,6 +1,12 @@
 # KeyVaultSecretApi
 
-A .NET 9.0 Web API for retrieving secrets from Azure Key Vault using the Azure SDK.
+A .NET Web API for retrieving secrets from Azure Key Vault using the Azure SDK Secrets Client and ClientSecretCredentials.
+
+The API is instrumented to do the following:
+
+1) Log each HTTP request to the keyvault secret made by the application, including headers.
+2) Check if the Authorization header is present and if not, check if the header is absent due to a WWW-Authorization challenge response header or not.
+3) Instrumentation has also been added to the ClientSecretCredentials to log when tokens are retrieved.
 
 ## Prerequisites
 

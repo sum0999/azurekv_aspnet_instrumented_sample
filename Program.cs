@@ -1,6 +1,6 @@
 using System.Diagnostics.Tracing;
+using System.Net.Http;
 using System.Text.RegularExpressions;
-using Azure.Core;
 using Azure.Core.Diagnostics;
 using Azure.Core.Pipeline;
 using Azure.Identity;
@@ -46,23 +46,22 @@ var baseCredential = new ClientSecretCredential(
 
 var loggingCredential = new LoggingTokenCredential(baseCredential);
 
-var secretClientOptions = new SecretClientOptions
+var secretClient = new SecretClient(
+    new Uri(vaultUrl),
+    loggingCredential,
+    new SecretClientOptions
     {
         Diagnostics =
         {
             IsLoggingEnabled       = true,
             LoggedHeaderNames      = { "*" },
             LoggedQueryParameters  = { "*" }
-        }
-    };
-
-// Insert our custom policy into the per-call pipeline so it runs on every request
-secretClientOptions.AddPolicy(new AuthDiagnosticsPolicy(), HttpPipelinePosition.PerCall);
-
-var secretClient = new SecretClient(
-    new Uri(vaultUrl),
-    loggingCredential,
-    secretClientOptions);
+        },
+        // WireLoggingHandler sits below the SDK pipeline and sees the final
+        // HTTP request — including whether Authorization was actually attached.
+        Transport = new HttpClientTransport(
+            new WireLoggingHandler(new HttpClientHandler()))
+    });
 
 // Register as a singleton so controllers / endpoints can use it
 builder.Services.AddSingleton(secretClient);

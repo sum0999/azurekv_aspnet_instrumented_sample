@@ -1,0 +1,17 @@
+## .NET
+bin/
+obj/
+publish/
+
+## User secrets / local settings
+appsettings.*.local.json
+
+## IDE
+.vs/
+*.user
+*.suo
+
+## OS
+Thumbs.db
+Desktop.ini
+.DS_Store
